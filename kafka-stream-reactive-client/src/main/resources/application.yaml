@@ -1,0 +1,48 @@
+spring:
+  reactor:
+    context-propagation: auto
+  cloud:
+    function:
+      definition: helloReactive;helloReactor
+    stream:
+      bindings:
+        helloReactive-in-0:
+          group: kafka-stream-reactive-client
+          destination: hello.in
+          binder: kafka
+        helloReactor-in-0:
+          group: kafka-stream-reactor-client
+          destination: hello.in
+          binder: reactorKafka
+      kafka:
+        binder:
+          brokers: localhost
+          defaultBrokerPort: 29092
+          enable-observation: true
+      default-binder: kafka
+  application:
+    name: kafka-stream-reactive-client
+  data:
+    mongodb:
+      database: stream-reactive
+
+management:
+  metrics:
+    mongo:
+      command:
+        enabled: false
+  tracing:
+    sampling:
+      probability: 1.0
+    enabled: true
+    propagation:
+      type: w3c
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
+server:
+  port: 8084
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
